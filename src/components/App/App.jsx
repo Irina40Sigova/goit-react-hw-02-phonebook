@@ -17,23 +17,28 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
   };
 
-  addContact = contacts => {
+  addContact = contact => {
+    const isInContacts = this.state.contacts.find(
+      e => e.name.toLowerCase() === contact.name.toLowerCase()
+    );
+
+    if (isInContacts) {
+      alert(`"${contact.name}" is alredy in contacts`, '', 'warning');
+      return;
+    }
+
     this.setState(prevState => {
-      contacts.id = nanoid();
       return {
-        contacts: [contacts, ...prevState.contacts],
+        contacts: [{ ...contact, id: nanoid() }, ...prevState.contacts],
       };
     });
   };
 
-  getFilter = value => {
-    let name = value.currentTarget.value.toLowerCase();
+  getFilter = e => {
     this.setState({
-      filter: name,
+      filter: e.target.value.toLowerCase(),
     });
   };
 
@@ -43,13 +48,21 @@ export class App extends Component {
     }));
   };
 
+  getFilteredContacs = () => {
+    const { filter, contacts } = this.state;
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter)
+    );
+  };
+
   render() {
+    const contacts = this.getFilteredContacs();
     return (
       <Container>
         <Title> Phonebook</Title>
-        <LoginForm addContact={this.addContact} state={this.state} />
+        <LoginForm addContact={this.addContact} />
         <Filter getFilter={this.getFilter} />
-        <Contacts state={this.state} deleteContact={this.deleteContact} />
+        <Contacts contacts={contacts} deleteContact={this.deleteContact} />
       </Container>
     );
   }

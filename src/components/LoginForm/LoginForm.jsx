@@ -4,8 +4,24 @@ import { FormEl, Err } from './LoginForm.styled';
 import * as yup from 'yup';
 
 const userSchema = yup.object({
-  name: yup.string().min(3, 'Too Short!').max(15, 'Too Long!').required(),
-  number: yup.string().min(6, 'Too Short!').max(15, 'Too Long!').required(),
+  name: yup
+    .string()
+    .min(3, 'Too Short!')
+    .max(15, 'Too Long!')
+    .matches(
+      /^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$/,
+      `Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan`
+    )
+    .required(),
+  number: yup
+    .string()
+    .min(6, 'Too Short!')
+    .max(15, 'Too Long!')
+    .matches(
+      /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/,
+      `Phone number must be digits and can contain spaces, dashes, parentheses and can start with +`
+    )
+    .required(),
 });
 
 const initialValues = {
@@ -13,18 +29,10 @@ const initialValues = {
   number: '',
 };
 
-export const LoginForm = ({ addContact, state }) => {
+export const LoginForm = ({ addContact }) => {
   const handeleSubmit = (values, { resetForm }) => {
-    // console.log(values);
-    let data = state.contacts.find(e => e.name === values.name);
-
-    if (data === undefined) {
-      resetForm();
-
-      addContact(values);
-    } else {
-      alert(`"${values.name}" is alredy in contacts`, '', 'warning');
-    }
+    addContact(values);
+    resetForm();
   };
 
   return (
@@ -36,24 +44,12 @@ export const LoginForm = ({ addContact, state }) => {
       <FormEl>
         <label>
           Name
-          <Field
-            type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
-          />
+          <Field type="text" name="name" />
           <Err name="name" component="div" />
         </label>
         <label>
           Number
-          <Field
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            required
-          />
+          <Field type="tel" name="number" />
           <Err name="number" component="div" />
         </label>
         <button type="submit">Add contact</button>
@@ -63,5 +59,5 @@ export const LoginForm = ({ addContact, state }) => {
 };
 
 LoginForm.propTypes = {
-  onSubmit: PropTypes.func,
+  addContact: PropTypes.func,
 };
